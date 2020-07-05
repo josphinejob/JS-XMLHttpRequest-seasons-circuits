@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "jsonpath": "^1.0.2",
+    "xml-js": "^1.6.11"
+  }
+}
