@@ -1,31 +1,55 @@
 /* eslint-disable no-console */
+// import required modules
+const readline = require("readline");
 const convert = require('xml-js');
-const http = require('http');
 const jsonpath = require('jsonpath');
+const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
-const options = {
-  host: 'www.ergast.com',
-  path: '/api/f1',
-};
+// create interface for input and output
+const IOinterface = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
 
-const currentYear = new Date().getFullYear();
+// create empty user input
+let userInput = "";
 
-function callback(response) {
-  let str = ' ';
-  // append chunk of data to str
-  response.on('data', (chunk) => {
-    str += chunk;
-  });
-  // when whole response is received
-  response.on('end', () => {
-    const resultJson = convert.xml2json(str, { compact: true, spaces: 4 });
-    const obj = JSON.parse(resultJson);
-    const seasons = (jsonpath.query(obj, '$.MRData.RaceTable.Race[*]._attributes.season'));
-    console.log(`Number of circuits in season ${seasons[0]} --> ${seasons.length}`);
-  });
-}
+// question user to enter name
+IOinterface.question("Enter the season for which you want to know the number of circuits (any year after 1949) \n", function (string) {
+  userInput = string;
 
-for (let i = 1950; i <= currentYear; i++) {
-  options.path = `/api/f1/${i}`;
-  http.request(options, callback).end();
-}
+// Define the UIOinterface to call
+var url = "http://www.ergast.com/api/f1/"+`${userInput}`;
+
+// Create a new XMLHttpRequest object
+let xhr = new XMLHttpRequest();
+
+// Open a connection to the UIOinterface and send the request
+xhr.open("GET", url);
+xhr.send();
+
+// Define a function to handle the response data when it is received
+xhr.onreadystatechange = function() {
+
+    // Check if the request is complete
+    if (xhr.readyState == 4 && xhr.status == 200) {
+
+      var result = xhr.responseText;
+
+      // Convert the xml response to json
+      const resultJson = convert.xml2json(result, { compact: true, spaces: 4 });
+
+      // Parse the response data into a JSON object
+      var data = JSON.parse(resultJson);
+
+      // Get the list of circuits for the given season from the JSON object
+      const circuits = (jsonpath.query(data, '$.MRData.RaceTable.Race[*]._attributes.season'));
+
+      // Print out the number of circuits in the given season
+      console.log("Season    |  numberOfCircuits  |");
+      console.log(`${userInput}` + "      |  " + circuits.length + "                |");
+    }
+  };
+// close input stream
+IOinterface.close();
+});
