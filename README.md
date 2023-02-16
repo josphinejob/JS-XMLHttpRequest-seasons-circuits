@@ -8,9 +8,9 @@ About this API: The Ergast Developer API is an experimental web service which pr
 
 Use case:
 
-Given I want to know the number of Formula One races in <season>
-When I retrieve the circuit list for that season
-Then there should be <numberOfCircuits> circuits in the list returned
+Given I want to know the number of Formula One races in "season",
+When I retrieve the circuit list for that season,
+Then there should be "numberOfCircuits" circuits in the list returned.
 
 Gives output in below format:
 
